@@ -27,36 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const patent = data.organic_results[Math.floor(Math.random() * data.organic_results.length)];
 
-        titleEl.textContent = patent.title || "Unknown invention";
+        titleEl.textContent = patent.inventor || "Unknown inventor";
 
-        snippetEl.textContent = patent.snippet || patent.abstract || "No description available.";
-    let authors = [];
-
-    // Check if summary exists and has inventor
-    if (patent.summary && patent.summary.inventor) {
-    // summary.inventor could be a string or array
-    if (Array.isArray(patent.summary.inventor)) {
-        authors = patent.summary.inventor.filter(Boolean);
-    } else if (typeof patent.summary.inventor === "string") {
-        authors = [patent.summary.inventor];
-    }
-    }
-    // Optional fallback to assignees
-    // else if (patent.assignees && patent.assignees.length > 0) {
-    // authors = patent.assignees.map(a => a.name).filter(Boolean);
-    // }
-
-    inventorEl.textContent = authors.length > 0 ? `— ${authors.join(", ")}` : "— Author not listed";
-        yearEl.textContent = patent.publication_date
-          ? patent.publication_date.split("-")[0]
-          : "Year unknown";
-      })
-      .catch(err => {
-        console.error(err);
-        titleEl.textContent = "Error generating invention.";
-        snippetEl.textContent = "";
-        inventorEl.textContent = "";
-        yearEl.textContent = "";
-      });
-  });
+        snippetEl.textContent = patent.title || "Unknown invention";
+    })
+})
 });
