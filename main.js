@@ -1,25 +1,51 @@
-const inventions = [
-  { quote: "Telephone", inventor: "Alexander Graham Bell", year: "1876", link: "https://en.wikipedia.org/wiki/Telephone" },
-  { quote: "Light Bulb", inventor: "Thomas Edison", year: "1879", link: "https://en.wikipedia.org/wiki/Light_bulb" },
-  { quote: "Printing Press", inventor: "Johannes Gutenberg", year: "1440", link: "https://en.wikipedia.org/wiki/Printing_press" },
-  { quote: "Steam Engine", inventor: "James Watt", year: "1765", link: "https://en.wikipedia.org/wiki/Steam_engine" },
-  { quote: "Airplane", inventor: "Wright Brothers", year: "1903", link: "https://en.wikipedia.org/wiki/Wright_brothers" },
-  { quote: "Vaccination", inventor: "Edward Jenner", year: "1796", link: "https://en.wikipedia.org/wiki/Vaccination" },
-  { quote: "Radio", inventor: "Guglielmo Marconi", year: "1895", link: "https://en.wikipedia.org/wiki/Radio" },
-  { quote: "Automobile", inventor: "Karl Benz", year: "1886", link: "https://en.wikipedia.org/wiki/Automobile" },
-  { quote: "Computer", inventor: "Charles Babbage", year: "1837", link: "https://en.wikipedia.org/wiki/Charles_Babbage" },
-  { quote: "Internet", inventor: "Vint Cerf & Bob Kahn", year: "1969", link: "https://en.wikipedia.org/wiki/Internet" }
-];
+const API_KEY = "Z5wvgpVcY3tc4wd3V2NX5qZN"; 
+const generateBtn = document.getElementById("generateBtn");
 
-function generateQuote() {
-  const random = Math.floor(Math.random() * inventions.length);
-  const invention = inventions[random];
+const quoteEl = document.getElementById("quote");
+const inventorEl = document.getElementById("inventor");
+const yearEl = document.getElementById("year");
 
-  document.getElementById("quote").innerText = `"${invention.quote}"`;
-  document.getElementById("inventor").innerText = `Inventor: ${invention.inventor}`;
-  document.getElementById("year").innerText = `Year: ${invention.year}`;
-}
+generateBtn.addEventListener("click", () => {
+  quoteEl.textContent = "Generating invention...";
+  inventorEl.textContent = "";
+  yearEl.textContent = "";
 
-document.getElementById("generateBtn").addEventListener("click", generateQuote);
+  const query = "famous invention";
 
-generateQuote();
+  const url = `https://www.searchapi.io/api/v1/search?engine=google_patents&q=${encodeURIComponent(query)}&api_key=${API_KEY}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+     console.log("API RESPONSE:", data);
+
+      if (!data.organic_results || data.organic_results.length === 0) {
+        quoteEl.textContent = "No invention found.";
+        return;
+      }
+
+      const patent =
+        data.organic_results[
+          Math.floor(Math.random() * data.organic_results.length)
+        ];
+
+      quoteEl.textContent = `"${patent.title || "Unknown invention"}"`;
+
+      inventorEl.textContent =
+        patent.inventors && patent.inventors.length > 0
+          ? `— ${patent.inventors.join(", ")}`
+          : "— Inventor not listed";
+
+      let year = "Year unknown";
+      if (patent.publication_number) {
+        const match = patent.publication_number.match(/\d{4}/);
+        if (match) year = match[0];
+      }
+
+      yearEl.textContent = year;
+    })
+    .catch(err => {
+      console.error(err);
+      quoteEl.textContent = "Error generating invention.";
+    });
+});
